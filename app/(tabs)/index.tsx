@@ -17,7 +17,13 @@ export default function HomeScreen() {
     >
       <FlashList
         data={homeFeed}
-        renderItem={({ item }) => <ImagePreview image={item.image} />}
+        renderItem={({ item }) => (
+          <ImagePreview
+            image={item.image}
+            caption={item.caption}
+            createdBy={item.createdBy}
+          />
+        )}
         estimatedItemSize={440}
       />
     </View>

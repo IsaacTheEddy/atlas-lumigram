@@ -1,14 +1,22 @@
-import { Image, Text } from "react-native";
-import { Alert } from "react-native";
+import { Image, Text, Alert } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  runOnJS,
 } from "react-native-reanimated";
 import { useState } from "react";
 
-export default function ImagePreview({ image }: { image: string | undefined }) {
+export default function ImagePreview({
+  image,
+  caption,
+  createdBy,
+}: {
+  image: string | undefined;
+  caption: string;
+  createdBy: string;
+}) {
   const source = image
     ? { uri: image }
     : require("../assets/images/placeholder.png");
@@ -27,11 +35,14 @@ export default function ImagePreview({ image }: { image: string | undefined }) {
     .onEnd(() => {
       showCaption.value = 0;
     });
+  const handleAlert = () => {
+    Alert.alert("Double Tap", "Its been double tapped");
+  };
 
   const doubleTap = Gesture.Tap()
     .numberOfTaps(2)
     .onEnd(() => {
-      Alert.alert("Double Tap", "Its been double tapped");
+      runOnJS(handleAlert)();
     });
 
   //Combines Gestures
@@ -68,7 +79,8 @@ export default function ImagePreview({ image }: { image: string | undefined }) {
             captionStyle,
           ]}
         >
-          <Text>PlaceHolder </Text>
+          <Text>Title: {caption ? caption : "unknown"} </Text>
+          <Text>Created By: {createdBy ? createdBy : "unknown"} </Text>
         </Animated.View>
       </Animated.View>
     </GestureDetector>
