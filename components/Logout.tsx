@@ -7,7 +7,7 @@ export default function LogOut() {
   const router = useRouter();
 
   function logout() {
-    router.replace("./login");
+    router.replace("../login");
   }
   return (
     <Pressable onPress={logout}>

@@ -67,25 +67,34 @@ export default function Page() {
         <TextInput
           style={styles.textInput}
           onChangeText={onChangePassword}
-          value={email}
+          value={password}
           placeholder="Password"
           placeholderTextColor={"white"}
+          secureTextEntry={true}
         ></TextInput>
         <Pressable
-          style={{ flex: 0, backgroundColor: "red" }}
+          style={{
+            flex: 0,
+            backgroundColor: "#63cfb1",
+            height: 50,
+            margin: 10,
+            borderRadius: 6,
+            justifyContent: "center",
+          }}
           onPress={() => {
             router.push("./(tabs)/");
           }}
         >
-          <Text>Sign In</Text>
+          <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
+            Sign In
+          </Text>
         </Pressable>
         <Link href="./register" replace>
-          <Text>Create a New Acoount</Text>
+          <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
+            Create a New Acoount
+          </Text>
         </Link>
       </View>
-      {/* <View style={{ flex: 2, backgroundColor: "blue" }}>
-       
-      </View> */}
     </View>
   );
 }
@@ -98,5 +107,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#000039",
   },
-  textInput: { borderWidth: 2, borderColor: "#52ac9b", margin: 10 },
+  textInput: {
+    borderWidth: 2,
+    borderColor: "#52ac9b",
+    margin: 10,
+    color: "white",
+  },
 });
