@@ -1,30 +1,27 @@
+import { FlashList } from "@shopify/flash-list";
 import { Image, StyleSheet } from "react-native";
 
 import { View, Text } from "react-native";
+import { homeFeed } from "../../placeholder";
+import ImagePreview from "@/components/ImagePreview";
 
 export default function HomeScreen() {
   return (
-    <View>
-      <Text>Home Page</Text>
+    <View
+      style={{
+        flex: 1,
+        width: "100%",
+        height: "auto",
+        marginHorizontal: "auto",
+      }}
+    >
+      <FlashList
+        data={homeFeed}
+        renderItem={({ item }) => <ImagePreview image={item.image} />}
+        estimatedItemSize={440}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
+const styles = StyleSheet.create({});

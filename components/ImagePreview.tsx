@@ -1,17 +1,76 @@
-import { Image } from "react-native";
-import { View } from "react-native";
+import { Image, Text } from "react-native";
+import { Alert } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
+import { useState } from "react";
 
 export default function ImagePreview({ image }: { image: string | undefined }) {
   const source = image
     ? { uri: image }
     : require("../assets/images/placeholder.png");
+
+  const showCaption = useSharedValue(0);
+
+  const captionStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(showCaption.value),
+  }));
+
+  const longPress = Gesture.LongPress()
+    .minDuration(300)
+    .onStart(() => {
+      showCaption.value = 1;
+    })
+    .onEnd(() => {
+      showCaption.value = 0;
+    });
+
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd(() => {
+      Alert.alert("Double Tap", "Its been double tapped");
+    });
+
+  //Combines Gestures
+  const combinedGestures = Gesture.Simultaneous(longPress, doubleTap);
+
   return (
-    <View style={{ flex: 0, height: "100%", width: "100%", marginTop: 20 }}>
-      <Image
-        source={source}
-        style={{ width: 400, height: 400, borderRadius: 10 }}
-        resizeMode="cover"
-      />
-    </View>
+    <GestureDetector gesture={combinedGestures}>
+      <Animated.View
+        style={{
+          flex: 0,
+          height: "100%",
+          width: "100%",
+          marginTop: 20,
+          marginHorizontal: 10,
+        }}
+      >
+        <Image
+          source={source}
+          resizeMode="cover"
+          style={{
+            width: 400,
+            height: 400,
+            borderRadius: 10,
+          }}
+        />
+        <Animated.View
+          style={[
+            {
+              position: "absolute",
+              bottom: 100,
+              left: 50,
+              padding: 8,
+            },
+            captionStyle,
+          ]}
+        >
+          <Text>PlaceHolder </Text>
+        </Animated.View>
+      </Animated.View>
+    </GestureDetector>
   );
 }
