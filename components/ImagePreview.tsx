@@ -12,10 +12,12 @@ export default function ImagePreview({
   image,
   caption,
   createdBy,
+  canFavorite,
 }: {
   image: string | undefined;
   caption: string;
   createdBy: string;
+  canFavorite: boolean;
 }) {
   const source = image
     ? { uri: image }
@@ -45,11 +47,10 @@ export default function ImagePreview({
       runOnJS(handleAlert)();
     });
 
-  //Combines Gestures
   const combinedGestures = Gesture.Simultaneous(longPress, doubleTap);
 
   return (
-    <GestureDetector gesture={combinedGestures}>
+    <GestureDetector gesture={canFavorite ? combinedGestures : longPress}>
       <Animated.View
         style={{
           flex: 0,

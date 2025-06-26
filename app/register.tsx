@@ -1,8 +1,10 @@
 import { View, Text, Pressable } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { Link, router } from "expo-router";
 import { StyleSheet } from "react-native";
 import { TextInput } from "react-native";
 import { useState } from "react";
+import { auth } from "../firebaseConfig";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function Page() {
   const [email, onChangeEmail] = useState("");
@@ -80,7 +82,16 @@ export default function Page() {
             borderRadius: 6,
             justifyContent: "center",
           }}
-          onPress={() => {}}
+          onPress={() => {
+            createUserWithEmailAndPassword(auth, email, password)
+              .then((userCredential) => {
+                const user = userCredential.user;
+                router.replace("./login");
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }}
         >
           <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
             Create Account

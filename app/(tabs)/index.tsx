@@ -22,6 +22,7 @@ export default function HomeScreen() {
             image={item.image}
             caption={item.caption}
             createdBy={item.createdBy}
+            canFavorite={false}
           />
         )}
         estimatedItemSize={440}
