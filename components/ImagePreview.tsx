@@ -6,6 +6,10 @@ import Animated, {
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
+import storage from "@/lib/storage";
+import fireStore from "@/lib/fireStore";
+import { useAuth } from "./AuthProvider";
+import { use } from "react";
 export default function ImagePreview({
   image,
   caption,
@@ -14,14 +18,34 @@ export default function ImagePreview({
   showCap,
 }: {
   image: string | undefined;
-  caption?: string;
+  caption: string;
   createdBy?: string;
   canFavorite?: boolean;
   showCap?: boolean;
 }) {
+  const auth = useAuth();
   const source = image
     ? { uri: image }
     : require("../assets/images/placeholder.png");
+  const sourceComplete = source;
+
+  async function save() {
+    if (!image) {
+      return;
+    }
+    const name = image?.split("/").pop() as string;
+
+    const { downloadUrl, metadata } = await storage.upload(image, name);
+    alert(`Added ${caption} to favorites`);
+
+    fireStore.addFav({
+      caption: caption,
+      image: downloadUrl,
+      createdAt: new Date(),
+      createdBy: auth.user?.uid!!,
+    });
+    return downloadUrl;
+  }
 
   const showCaption = useSharedValue(0);
 
@@ -40,13 +64,14 @@ export default function ImagePreview({
       showCaption.value = 0;
     });
   const handleAlert = () => {
-    Alert.alert("Double Tap", "Its been double tapped");
+    Alert.alert("Double Tap", "It has been added to favorites");
   };
 
   const doubleTap = Gesture.Tap()
     .numberOfTaps(2)
     .onEnd(() => {
       runOnJS(handleAlert)();
+      runOnJS(save)();
     });
 
   const combinedGestures = Gesture.Simultaneous(longPress, doubleTap);
@@ -63,7 +88,7 @@ export default function ImagePreview({
         }}
       >
         <Image
-          source={source}
+          source={sourceComplete}
           resizeMode="cover"
           style={{
             width: 400,

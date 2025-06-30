@@ -18,7 +18,7 @@ export default function Page() {
   const [caption, setCaption] = useState("");
   const { image, openImage, reset } = useImagePicker();
 
-  async function save() {
+  async function submit() {
     if (!image) {
       return;
     }
@@ -76,7 +76,7 @@ export default function Page() {
                 borderRadius: 6,
                 justifyContent: "center",
               }}
-              onPress={save}
+              onPress={submit}
             >
               <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
                 Save
