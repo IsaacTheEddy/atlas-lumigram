@@ -9,10 +9,34 @@ import {
 import ImagePreview from "../../components/ImagePreview";
 import { useImagePicker } from "@/hooks/useImagePicker";
 import { useState } from "react";
+import storage from "@/lib/storage";
+import fireStore from "@/lib/fireStore";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Page() {
+  const auth = useAuth();
   const [caption, setCaption] = useState("");
   const { image, openImage, reset } = useImagePicker();
+
+  async function save() {
+    if (!image) {
+      return;
+    }
+    const name = image?.split("/").pop() as string;
+
+    const { downloadUrl, metadata } = await storage.upload(image, name);
+    alert(`Posted ${downloadUrl}`);
+
+    fireStore.addPost({
+      caption,
+      image: downloadUrl,
+      createdAt: new Date(),
+      createdBy: auth.user?.uid!!,
+    });
+    setCaption("");
+    return downloadUrl;
+  }
+
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <View style={{ flex: 1, marginBottom: 100 }}>
@@ -52,9 +76,7 @@ export default function Page() {
                 borderRadius: 6,
                 justifyContent: "center",
               }}
-              onPress={() => {
-                Alert.alert(caption);
-              }}
+              onPress={save}
             >
               <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
                 Save

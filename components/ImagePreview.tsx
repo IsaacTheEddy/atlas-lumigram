@@ -6,18 +6,18 @@ import Animated, {
   withTiming,
   runOnJS,
 } from "react-native-reanimated";
-import { useState } from "react";
-
 export default function ImagePreview({
   image,
   caption,
   createdBy,
   canFavorite,
+  showCap,
 }: {
   image: string | undefined;
-  caption: string;
-  createdBy: string;
-  canFavorite: boolean;
+  caption?: string;
+  createdBy?: string;
+  canFavorite?: boolean;
+  showCap?: boolean;
 }) {
   const source = image
     ? { uri: image }
@@ -32,7 +32,9 @@ export default function ImagePreview({
   const longPress = Gesture.LongPress()
     .minDuration(300)
     .onStart(() => {
-      showCaption.value = 1;
+      if (showCap) {
+        return (showCaption.value = 1);
+      }
     })
     .onEnd(() => {
       showCaption.value = 0;

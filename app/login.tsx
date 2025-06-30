@@ -5,11 +5,23 @@ import { TextInput } from "react-native";
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Page() {
   const router = useRouter();
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
+  const auth = useAuth();
+
+  async function logIn() {
+    try {
+      await auth.logIn(email, password);
+      console.log(`Logged in user ${auth.user}`);
+      router.replace("./(tabs)/");
+    } catch (err) {
+      alert("Unable to sign in");
+    }
+  }
 
   return (
     <View style={styles.pageView}>
@@ -84,16 +96,7 @@ export default function Page() {
             borderRadius: 6,
             justifyContent: "center",
           }}
-          onPress={() =>
-            signInWithEmailAndPassword(auth, email, password)
-              .then((userCredential) => {
-                const user = userCredential.user;
-                router.replace("./(tabs)/");
-              })
-              .catch((error) => {
-                const err = console.error(error);
-              })
-          }
+          onPress={logIn}
         >
           <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
             Sign In

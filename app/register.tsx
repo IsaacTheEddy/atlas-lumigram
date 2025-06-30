@@ -3,12 +3,22 @@ import { Link, router } from "expo-router";
 import { StyleSheet } from "react-native";
 import { TextInput } from "react-native";
 import { useState } from "react";
-import { auth } from "../firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function Page() {
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
+
+  const auth = useAuth();
+
+  async function register() {
+    try {
+      await auth.register(email, password);
+      router.replace("./(tabs)/");
+    } catch (err) {
+      alert("Unable to create account");
+    }
+  }
   return (
     <View style={styles.pageView}>
       {/* Atlas School */}
@@ -82,16 +92,7 @@ export default function Page() {
             borderRadius: 6,
             justifyContent: "center",
           }}
-          onPress={() => {
-            createUserWithEmailAndPassword(auth, email, password)
-              .then((userCredential) => {
-                const user = userCredential.user;
-                router.replace("./login");
-              })
-              .catch((error) => {
-                console.log(error);
-              });
-          }}
+          onPress={register}
         >
           <Text style={{ flex: 0, textAlign: "center", color: "white" }}>
             Create Account
