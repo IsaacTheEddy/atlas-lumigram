@@ -1,5 +1,6 @@
 import { db } from "@/firebaseConfig";
-import { addDoc, collection, query, where, getDoc, orderBy, getDocs, doc, limit, startAfter } from "firebase/firestore";
+import { addDoc, collection, query, where, getDoc, orderBy, getDocs, doc, limit, startAfter, startAt, QueryDocumentSnapshot, 
+  DocumentData, } from "firebase/firestore";
 
 
 
@@ -20,54 +21,55 @@ async function addPost(post: Post){
 }
 
 
-async function getPosts(nextPage?: string) {
+async function getInitalPosts() : Promise<{posts: Post[], lastDoc: QueryDocumentSnapshot<DocumentData> | null, isEndOfCollection: boolean}> {
     const qRef = collection(db, "posts");
-    const first = query(qRef, orderBy("createdAt", "desc"));
-    const qSnap = await getDocs(first);
-    const last = qSnap.docs[qSnap.docs.length - 1]
+    const q = query(qRef, orderBy("createdAt", "desc"), limit(3));
+    const qSnap = await getDocs(q);
     
-   const posts: Post[] = [];
-
-    qSnap.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
-
-      const data = doc.data();
-      posts.push({
-        caption: data.caption,
-        image: data.image,
-        // Firestore timestamps need to be converted to JS Date objects
-        createdAt: data.createdAt.toDate(),
-        createdBy: data.createdBy,
-      });
-    });
-
-    return { posts};
-  }
-async function getFavorites(nextPage?: string) {
-    const qRef = collection(db, "favorites");
-    const first = query(qRef, orderBy("createdAt", "desc"));
-    const qSnap = await getDocs(first);
-    const last = qSnap.docs[qSnap.docs.length - 1]
     
-   const posts: Post[] = [];
+   const posts: Post[] = qSnap.docs.map((doc) => {
+      return {
+        caption: doc.data().caption,
+        image: doc.data().image,
+        createdAt: doc.data().createdAt,
+        createdBy: doc.data().createdBy,
+      };
+    } )
+    const lastDoc = qSnap.docs.length > 0 ? qSnap.docs[qSnap.docs.length - 1] : null;
+  const isEndOfCollection = qSnap.docs.length < 3; 
 
-    qSnap.forEach((doc) => {
-      // doc.data() is never undefined for query doc snapshots
-      console.log(doc.id, " => ", doc.data());
-
-      const data = doc.data();
-      posts.push({
-        caption: data.caption,
-        image: data.image,
-        // Firestore timestamps need to be converted to JS Date objects
-        createdAt: data.createdAt.toDate(),
-        createdBy: data.createdBy,
-      });
-    });
-
-    return { posts};
+  return { posts, lastDoc, isEndOfCollection };
   }
+async function getMorePosts (startAfterDoc: QueryDocumentSnapshot<DocumentData> | null // Expect a document snapshot, can be null if restarting
+): Promise<{ posts: Post[]; lastDoc: QueryDocumentSnapshot<DocumentData> | null; isEndOfCollection: boolean }>{
+
+  const qRef = collection(db, "posts");
+  let q;
+  if (startAfterDoc) {
+    q = query(qRef, orderBy("createdAt", "desc"), startAfter(startAfterDoc), limit(3));
+  } else {
+    q = query(qRef, orderBy("createdAt", "desc"), limit(3))
+  }
+
+  const qSnap = await getDocs(q)
+
+   const posts: Post[] = qSnap.docs.map((doc) => {
+      return {
+        caption: doc.data().caption,
+        image: doc.data().image,
+        createdAt: doc.data().createdAt,
+        createdBy: doc.data().createdBy,
+      };
+    } )
+
+    const lastDoc = qSnap.docs.length > 0 ? qSnap.docs[qSnap.docs.length - 1] : null;
+    const isEndOfCollection = qSnap.docs.length < 3
+    return {posts, lastDoc, isEndOfCollection}
+
+  }
+
+
+ 
 
   async function addFav(post: Post){
     await addDoc(favorites, post)
@@ -78,7 +80,7 @@ async function getFavorites(nextPage?: string) {
 
 export default {
     addPost,
-    getPosts,
+    getInitalPosts,
+    getMorePosts,
     addFav,
-    getFavorites,
 }

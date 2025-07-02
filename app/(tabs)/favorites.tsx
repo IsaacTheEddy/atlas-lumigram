@@ -11,19 +11,6 @@ import fireStore, { Post } from "@/lib/fireStore";
 export default function FavoriteScreen() {
   const [posts, setPosts] = useState<Post[]>();
 
-  const fetchFavorites = async () => {
-    try {
-      const { posts: fetchedPosts } = await fireStore.getFavorites();
-      setPosts(fetchedPosts);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchFavorites();
-  }, []);
-
   return (
     <View
       style={{
@@ -35,7 +22,6 @@ export default function FavoriteScreen() {
     >
       <FlashList
         data={posts}
-        onRefresh={fetchFavorites}
         refreshing={!posts}
         renderItem={({ item }) => (
           <ImagePreview
